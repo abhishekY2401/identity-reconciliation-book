@@ -1,0 +1,5 @@
+flask
+flask-cors
+alembic
+python-dotenv
+flask_sqlalchemy
