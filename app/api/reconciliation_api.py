@@ -4,7 +4,7 @@ from app.services.reconciliation import reconcile_contact
 reconciliation = Blueprint('reconciliation', __name__)
 
 
-@reconciliation.route('/reconcile_user', methods=['POST'])
+@reconciliation.route('/identify', methods=['POST'])
 def reconcile():
     data = request.json
 
