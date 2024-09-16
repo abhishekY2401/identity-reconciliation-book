@@ -26,8 +26,8 @@ def reconcile_contact(phone_number=None, email=None):
             phone_number=phone_number,
             email=email,
             link_precedence='primary',
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc)
         )
         db.session.add(new_contact)
         db.session.commit()
@@ -42,7 +42,16 @@ def reconcile_contact(phone_number=None, email=None):
     # Identify the primary contact and collect all secondary contacts
     for contact in matching_contacts:
         if contact.link_precedence == 'primary':
-            primary_contact = contact
+            if primary_contact is None or contact.created_at < primary_contact.created_at:
+                primary_contact = contact
+            else:
+                # If we find a newer primary, convert it to secondary
+                contact.link_precedence = 'secondary'
+                contact.linked_id = primary_contact.id
+                contact.updated_at = datetime.now(timezone.utc)
+                db.session.add(contact)
+                db.session.commit()
+                secondary_contacts.append(contact)
         else:
             secondary_contacts.append(contact)
 
@@ -77,7 +86,7 @@ def reconcile_contact(phone_number=None, email=None):
         db.session.commit()
         secondary_contacts.append(new_secondary)
 
-    # Check if any two primary contacts need merging
+    # Check if any two primary contacts need merging (this logic demotes the newer primary)
     for contact in matching_contacts:
         if contact.link_precedence == 'primary' and contact != primary_contact:
             # Merge by making the newer primary a secondary contact of the older primary
