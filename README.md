@@ -69,7 +69,7 @@ flask db upgrade
 
 ```
 DATABASE_URI=postgresql://your_username:your_password@localhost/identity_reconciliation
-FLASK_PORT_NUMBER=PORT_NUMBER
+FLASK_APP_PORT=PORT_NUMBER
 ```
 
 ### Endpoints
